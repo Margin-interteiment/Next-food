@@ -1,7 +1,14 @@
-import { hashSync } from 'bcrypt';
+import { randomBytes, scryptSync } from 'crypto';
 import {prisma} from './prisma-client';
 import { categories,  ingredients, products } from './constans';
 import { Prisma } from '@prisma/client';
+
+const hashPassword = (password: string): string => {
+  const salt = randomBytes(16).toString('hex');
+  const hash = scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${hash}`;
+};
+const hashSync = (password: string, _rounds?: number) => hashPassword(password);
 
 
 const randomNumber = (min: number, max: number) => {
@@ -284,80 +291,37 @@ const burger18 = await prisma.product.create({
 
 
 
+// Бургери (categoryId 1-3): три розміри (20/30/40 см) і два варіанти
+const burgers = [
+  burger1, burger2, burger3, burger4, burger5, burger6,
+  burger7, burger8, burger9, burger10, burger11, burger12,
+  burger13, burger14, burger15, burger16, burger17, burger18,
+];
+
+const burgerItems: Prisma.ProductItemUncheckedCreateInput[] = [];
+for (const b of burgers) {
+  for (const size of [20, 30, 40]) {
+    for (const burgerType of [1, 2]) {
+      burgerItems.push({
+        productId: b.id,
+        size,
+        burgerType,
+        price: Math.round(randomNumber(150, 400)),
+      });
+    }
+  }
+}
+await prisma.productItem.createMany({ data: burgerItems });
+
+// Інші товари (випічка / напої / десерти) — один варіант без розмірів
+const otherProducts = await prisma.product.findMany({
+  where: { items: { none: {} } },
+});
 await prisma.productItem.createMany({
- data: [
-  {
-  productId: burger1.id, 
-  burgerType: 1, 
-  size: 30,
-  price: randomNumber(150, 400),
-},
-  {
-  productId: burger1.id, 
-  burgerType: 2, 
-  size: 50,
-  price: randomNumber(150, 400),
-},
-
-
-  {
-  productId: burger2.id, 
-  burgerType: 1, 
-  size: 30,
-  price: randomNumber(150, 400),
-},
-  {
-  productId: burger2.id, 
-  burgerType: 2, 
-  size: 50,
-  price: randomNumber(150, 400),
-},
-  {
-  productId: burger3.id, 
-  burgerType: 1, 
-  size: 30,
-  price: randomNumber(150, 400),
-},
-  {
-  productId: burger3.id, 
-  burgerType: 2, 
-  size: 50,
-  price: randomNumber(150, 400),
-},
-
-  {
-  productId: 1,  
-  price: randomNumber(150, 400),
-},
-  
-  {
-  productId: 2,  
-  price: randomNumber(150, 400),
-},
-  
-  {
-  productId: 3,  
-  price: randomNumber(150, 400),
-},
-  
-  {
-  productId: 4,  
-  price: randomNumber(150, 400),
-},
-  
-  {
-  productId: 5,  
-  price: randomNumber(150, 400),
-},
-  
-  {
-  productId: 6,  
-  price: randomNumber(150, 400),
-},
-  
-
- ]
-
+  data: otherProducts.map((p) => ({
+    productId: p.id,
+    price: Math.round(randomNumber(80, 250)),
+  })),
 });
 
 

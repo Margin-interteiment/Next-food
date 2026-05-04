@@ -2,8 +2,6 @@
 
 import { Dialog } from "@/components/ui";
 import { cn } from "@/lib/utils";
-import { Product } from "@prisma/client";
-import { Title } from "@radix-ui/react-dialog";
 import { DialogContent } from "@/components/ui/dialog";
 
 import React from "react";
@@ -28,9 +26,12 @@ export const ChooseProductModal: React.FC<Props> = ({ product, className }) => {
         )}
       >
         <ChooseProductForm
+          productId={product.id}
           imageUrl={product.imageUrl}
           name={product.name}
-          ingredients={[]}
+          ingredients={product.ingredients}
+          items={product.items}
+          onSubmitted={() => router.back()}
         />
       </DialogContent>
     </Dialog>

@@ -8,8 +8,10 @@ import { SortPopup } from "@/components/ui/shared/sort-popup";
 import { Filters } from "@/components/ui/shared/filters";
 import { ProductsGroupList } from "@/components/ui/shared/products-group-list";
 import { prisma } from "@/prisma/prisma-client";
+import { getServerDict } from "@/lib/locale-server";
 
 export default async function Home() {
+  const t = getServerDict();
   return (
     <div>
       {/* Первая секция */}
@@ -17,19 +19,20 @@ export default async function Home() {
         <div className="flex items-center gap-4">
           <div>
             <h1 className="text-4xl font-black text-black text-[58px] leading-[1]">
-              Доставка
-              <span className="text-[#FF6838] ml-[10px]">за 15 хвилин</span>
+              {t["hero.title.1"]}
+              <span className="text-[#FF6838] ml-[10px]">{t["hero.title.2"]}</span>
             </h1>
 
             <p className="text-2xl text-black max-w-[450px] mt-[15px]">
-              Найшвидший сервіс доставки їжі у вашому місті. Не вкладемося
-              вчасно - доставка за наш рахунок
+              {t["hero.subtitle"]}
             </p>
 
             <div className="flex items-center gap-3 mt-[15px]">
-              <Button> Замовити </Button>
-              <a href="#" className="underline text-black ml-[15px]">
-                Детальніше
+              <a href="#menu">
+                <Button>{t["hero.cta"]}</Button>
+              </a>
+              <a href="/about" className="underline text-black ml-[15px]">
+                {t["hero.more"]}
               </a>
             </div>
           </div>
@@ -49,7 +52,8 @@ export default async function Home() {
   );
 }
 
-export async function InformationOfBurgers() {
+async function InformationOfBurgers() {
+  const t = getServerDict();
   const categories = await prisma.category.findMany({
     include: {
       products: {
@@ -63,10 +67,10 @@ export async function InformationOfBurgers() {
 
   return (
     <div>
-      <div className="mt-[100px]">
+      <div id="menu" className="mt-[100px]">
         <Container className="block mt-[100px]">
           <Dialog>
-            <Title className="font-extrabold text-[43px]">Наше меню</Title>
+            <Title className="font-extrabold text-[43px]">{t["menu.title"]}</Title>
             <Categories />
             <SortPopup />
           </Dialog>
